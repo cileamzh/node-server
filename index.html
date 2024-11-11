@@ -13,7 +13,7 @@
         padding: 0;
       }
       header {
-        background-color: #2c3e50;
+        background-color: #34495e; /* 修改后的颜色 */
         color: #fff;
         padding: 20px;
         text-align: center;
@@ -44,12 +44,11 @@
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
-      h2 {
-        text-align: center;
-        color: #2c3e50;
-      }
+      h2,
       h3 {
         text-align: center;
+      }
+      h3 {
         color: #2980b9;
       }
       .api-container {
@@ -65,10 +64,10 @@
         display: block;
       }
       .response {
+        position: absolute;
         top: 200px;
         right: 100px;
-        position: absolute;
-        width: 800px;
+        width: 900px;
         height: 1000px;
         background-color: #ffffff;
         padding: 10px;
@@ -79,51 +78,22 @@
         overflow-y: auto;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
-      .device-info {
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin-top: 10px;
-        border-radius: 5px;
-      }
-      .device-info h4 {
-        margin-top: 0;
-        color: #2980b9;
-      }
-      /* 表格样式 */
       .device-table {
         width: 100%;
         border-collapse: collapse;
         margin: 20px 0;
       }
-
       .device-table th,
       .device-table td {
         padding: 8px;
         text-align: left;
         border: 1px solid #ddd;
       }
-
       .device-table th {
         background-color: #f4f4f4;
       }
-
       .device-table tr:nth-child(even) {
         background-color: #f9f9f9;
-      }
-
-      /* 按钮样式 */
-      .action-button {
-        background-color: #4caf50;
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 3px;
-      }
-
-      .action-button:hover {
-        background-color: #45a049;
       }
       #deviceSettings {
         height: 300px;
@@ -137,7 +107,6 @@
         max-width: 1200px;
         margin: 40px auto;
       }
-
       .generated-table {
         width: 100%;
         border-collapse: collapse;
@@ -146,32 +115,26 @@
         border-radius: 8px;
         overflow: hidden;
       }
-
       .generated-table th,
       .generated-table td {
         padding: 12px;
         text-align: left;
         border: 1px solid #ddd;
       }
-
       .generated-table th {
-        background-color: #4caf50;
+        background-color: #2980b9; /* 新的配色 */
         color: white;
         font-weight: bold;
       }
-
       .generated-table tr:nth-child(even) {
         background-color: #f9f9f9;
       }
-
       .generated-table tr:hover {
         background-color: #f1f1f1;
       }
-
       .generated-table td {
         color: #555;
       }
-
       .generated-table td pre {
         font-size: 0.9em;
         color: #333;
@@ -182,14 +145,11 @@
         white-space: pre-wrap;
         word-wrap: break-word;
       }
-
-      /* Responsive design for smaller screens */
       @media (max-width: 768px) {
         .generated-table th,
         .generated-table td {
           padding: 10px;
         }
-
         .table-container {
           padding: 10px;
         }
@@ -208,10 +168,9 @@
     </nav>
 
     <section id="register" style="display: none">
-      <!-- 注册 -->
       <h3>/registry And /login</h3>
-      <input type="text" id="uname" placeholder="用户名" />
-      <input type="password" id="password" placeholder="密码" />
+      <input type="text" id="uname" placeholder="用户名" required />
+      <input type="password" id="password" placeholder="密码" required />
       <input type="text" id="tel" placeholder="手机号" />
       <input type="email" id="email" placeholder="邮箱" />
       <input type="text" id="checkcode" placeholder="验证码" />
@@ -221,81 +180,67 @@
       <button onclick="checkCode()">获取验证码</button>
     </section>
 
-    <!-- 测试接口 box -->
+    <!-- 控制台 ========================================== -->
     <section id="api-docs">
-      <h2>API接口测试</h2>
-
-      <!-- 获取用户信息 -->
+      <h2>控制台</h2>
       <h3>/uinfo</h3>
       <button onclick="getUserInfo()">获取用户信息</button>
 
-      <!-- 获取设备列表 -->
       <h3>/devices</h3>
       <button onclick="getDevices()">获取设备</button>
 
-      <!-- 获取用户列表 -->
       <h3>/users</h3>
       <button onclick="getAllUser()">查询所有用户</button>
+
+     <h3>/user/del</h3>
+      <input type="text" />
+      <button>删除用户</button>
     </section>
 
-    <!-- 响应显示 -->
+    <!-- 相应区域====================================== -->
     <div class="response" id="response"></div>
 
     <script>
-      let token = ""; // 用于存储登录后获得的token
+      let token = "";
       let apiUrl = "http://" + window.location.host + "/api";
-      let isTableView = true;
       let topic = document.getElementById("form_header");
-      let ssk = "";
-      // 登录成功后保存 token
+
       function saveToken(newToken) {
         token = newToken;
       }
 
-      // 通用请求函数，添加 token 到请求头
       async function sendRequest(endpoint, method, body = null) {
-        let response;
-        let result;
         const headers = {
           "Content-Type": "application/json",
         };
-
-        // 如果存在 token，添加到请求头
         if (token) {
           headers["Authorization"] = `${token}`;
         }
-
-        const options = {
-          method: method,
-          headers: headers,
-        };
-
+        const options = { method, headers };
         if (body) options.body = JSON.stringify(body);
 
         try {
-          response = await fetch(apiUrl + endpoint, options);
-          result = await response.json();
-          generateTableFromObject(result);
+          const response = await fetch(apiUrl + endpoint, options);
+          const result = await response.json();
+
+          return result;
         } catch (error) {
-          document.getElementById(
-            "response"
-          ).textContent = `请求失败: ${error.message}`;
+          showError(`请求失败: ${error.message}`);
         }
-        return result;
       }
 
-      //  退出登录
+      function showError(message) {
+        document.getElementById("response").textContent = message;
+      }
+
       function exitLog() {
-        let r = confirm("确定退出登录");
-        if (!r) {
-          return;
+        if (confirm("确定退出登录")) {
+          token = "";
+          window.localStorage.removeItem("token");
+          topic.innerText = "已退出登录,如需访问请登录";
         }
-        token = "";
-        window.localStorage.removeItem("token");
-        topic.innerText = "已退出登录,如需访问请登录";
       }
 
-      // 注册接口
       function register() {
         const data = {
           uname: document.getElementById("uname").value,
@@ -306,19 +251,20 @@
         };
         sendRequest("/registry", "POST", data);
       }
-      // 验证码接口
+
       function checkCode() {
         const data = {
           uname: document.getElementById("uname").value,
           email: document.getElementById("email").value,
         };
         sendRequest("/checkcode", "POST", data).then(() => {
-          ssk = prompt();
-          sendRequest("/console?pass=" + ssk, "GET");
+          const code = prompt("请输入验证码");
+          sendRequest("/console?pass=" + code, "GET").then(
+            generateTableFromObject
+          );
         });
       }
 
-      // 登录接口
       function login() {
         const data = {
           account: document.getElementById("uname").value,
@@ -329,6 +275,7 @@
             saveToken(response.token);
             window.localStorage.setItem("token", response.token);
             alert("登录成功");
+            generateTableFromObject(response);
             topic.innerText =
               response.user.identity + " : " + response.user.uname;
           } else {
@@ -337,46 +284,47 @@
         });
       }
 
-      // 获取用户信息接口
       function getUserInfo() {
-        sendRequest("/uinfo", "GET");
+        sendRequest("/uinfo", "GET").then(generateTableFromObject);
+      }
+
+      function getDevices() {
+        sendRequest("/devices", "GET").then(generateTableFromObject);
       }
 
       function getAllUser() {
-        sendRequest("/users", "GET");
+        sendRequest("/users", "GET").then(generateTableFromObject);
       }
 
-      // 获取设备信息接口
-      function getDevices() {
-        sendRequest("/devices", "GET").then((r) => {
-          generateTableFromObject(r);
+      function generateTableFromObject(data) {
+        const container = document.getElementById("response");
+        container.innerHTML = "";
+
+        const table = document.createElement("table");
+        table.classList.add("generated-table");
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = "<th>属性</th><th>值</th>";
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        Object.entries(data).forEach(([key, value]) => {
+          const row = document.createElement("tr");
+
+          if (typeof value === "object" && value !== null) {
+            value = JSON.stringify(value, null, 2);
+          }
+
+          row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+          tbody.appendChild(row);
         });
+        table.appendChild(tbody);
+
+        container.appendChild(table);
       }
 
-      // 启动设备接口
-      function startDevice(did) {
-        sendRequest(`/device/run/${did}`, "GET");
-      }
-
-      // 停止设备接口
-      function stopDevice(did) {
-        sendRequest(`/device/stop/${did}`, "GET");
-      }
-
-      // 删除设备接口
-      function deleteDevice(did) {
-        sendRequest(`/device/delete/${did}`, "GET");
-      }
-
-      // 设置设备接口
-      function setDevice() {
-        const data = JSON.parse(
-          document.getElementById("deviceSettings").value
-        );
-        sendRequest("/device/set", "POST", data);
-      }
-
-      // 显示API文档
       function showApiDocs() {
         document.getElementById("api-docs").style.display = "block";
         document.getElementById("register").style.display = "none";
@@ -386,117 +334,13 @@
         document.getElementById("register").style.display = "block";
         document.getElementById("api-docs").style.display = "none";
       }
+
       token = window.localStorage.getItem("token");
-      sendRequest("/tokenlog", "POST", {}).then((result) => {
+      sendRequest("/tokenlog", "POST").then((result) => {
         document.getElementById("form_header").innerText =
           result.user.identity + " : " + result.user.uname;
+        generateTableFromObject(result);
       });
-      /**
-       * 自动生成表格的主函数
-       * @param {Object|Array} data - 需要转换成表格的 JavaScript 对象或数组
-       */
-      function generateTable(data) {
-        const container = document.getElementById("response");
-        container.innerHTML = ""; // 清空之前的内容
-
-        // 判断数据类型，如果是数组则调用 generateTableFromArray，否则调用 generateTableFromObject
-        if (Array.isArray(data)) {
-          generateTableFromArray(data, container);
-        } else if (typeof data === "object" && data !== null) {
-          generateTableFromObject(data, container);
-        } else {
-          container.innerHTML = "无效的数据格式！";
-        }
-      }
-
-      /**
-       * 处理数组数据并生成表格
-       * @param {Array} data - 需要转换成表格的数组
-       * @param {HTMLElement} container - 放置表格的容器
-       */
-      function generateTableFromArray(data, container) {
-        if (data.length === 0) {
-          container.innerHTML = "数组为空！";
-          return;
-        }
-
-        const table = document.createElement("table");
-        table.classList.add("generated-table");
-
-        // 创建表头
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-
-        // 如果是数组，取第一个对象的键作为表头
-        Object.keys(data[0]).forEach((key) => {
-          const th = document.createElement("th");
-          th.textContent = key;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // 填充表格数据
-        const tbody = document.createElement("tbody");
-        data.forEach((item) => {
-          const row = document.createElement("tr");
-          Object.values(item).forEach((value) => {
-            const td = document.createElement("td");
-            td.textContent = value;
-            row.appendChild(td);
-          });
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-
-        // 将表格添加到容器
-        container.appendChild(table);
-      }
-
-      /**
-       * 处理对象数据并生成表格
-       * @param {Object} data - 需要转换成表格的对象
-       * @param {HTMLElement} container - 放置表格的容器
-       */
-      function generateTableFromObject(data, container) {
-        const table = document.createElement("table");
-        table.classList.add("generated-table");
-
-        // 创建表头
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        const th1 = document.createElement("th");
-        th1.textContent = "属性";
-        const th2 = document.createElement("th");
-        th2.textContent = "值";
-        headerRow.appendChild(th1);
-        headerRow.appendChild(th2);
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // 填充表格数据
-        const tbody = document.createElement("tbody");
-        Object.entries(data).forEach(([key, value]) => {
-          const row = document.createElement("tr");
-
-          // 如果值是对象或数组，递归调用 generateTable
-          if (typeof value === "object" && value !== null) {
-            value = JSON.stringify(value, null, 2); // 将对象/数组转换为JSON字符串
-          }
-
-          const td1 = document.createElement("td");
-          td1.textContent = key;
-          const td2 = document.createElement("td");
-          td2.textContent = value;
-          row.appendChild(td1);
-          row.appendChild(td2);
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-
-        // 将表格添加到容器
-        container.appendChild(table);
-      }
     </script>
   </body>
 </html>

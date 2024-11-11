@@ -120,10 +120,15 @@ let get_device_logs = async (did) => {
 }
 
 let del_devicestore = async (uid, did) => {
-    let rs = client.query(`delete from "devicestore" where "uid"='${uid}' and "did"='${did}'`)
+    let rs = await client.query(`delete from "devicestore" where "uid"='${uid}' and "did"='${did}'`)
     return rs;
 }
 
+
+let delete_user = async (uid) => {
+    let rs = await client.query(`delete from "user" where "uid"='${uid}'`);
+    return rs.command
+}
 
 module.exports = {
     get_user_by_eamil,
@@ -143,5 +148,6 @@ module.exports = {
     get_devicestores,
     del_device,
     del_devicestore,
-    get_users
+    get_users,
+    delete_user,
 };  

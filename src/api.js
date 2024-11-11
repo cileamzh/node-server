@@ -17,6 +17,7 @@ const {
     del_device,
     del_devicestore,
     get_users,
+    delete_user,
 } = require("./sql");
 const send = require("./email");
 const { run_device, stop, c_map } = require("./mqtt");
@@ -100,6 +101,20 @@ api.get("/uinfo", async (req, res) => {
     let { uid } = dToken(token);
     let user = await get_user_by_uid(uid);
     return res.json({ message: "获取成功", user })
+})
+
+// 删除账号接口
+api.get("/user/delete", (req, res) => {
+    const token = req.headers["authorization"];
+    if (!token) {
+        return res.status(400).json({ message: "未找到token" });
+    }
+    if (!dToken(token)) {
+        return res.status(400).json({ message: "token失效" })
+    }
+    const { uid } = dToken(token)
+    delete_user(uid);
+    return res.json({ message: "成功注销账号" })
 })
 
 // 获取所有账号接口
