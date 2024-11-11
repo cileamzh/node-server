@@ -1,0 +1,14 @@
+{
+    "JWTSK": "cileamzh_hms_server",
+    "MailSender": {
+        "host": "smtp.qq.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+            "user": "3177610384@qq.com",
+            "pass": "uzttvymsdzucdgeb"
+        }
+    },
+    "console_pass": "zxc005921",
+    "refresh_time": 15000
+}
